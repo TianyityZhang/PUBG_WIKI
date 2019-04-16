@@ -2,7 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
-Short Gun
+Shotgun
 {% endblock %}
 
 {% block styles %}
@@ -30,8 +30,8 @@ Short Gun
       <ul class="nav navbar-nav">
         <li><a href="{{ url_for('index') }}">Home</a></li>
         <li><a href="{{ url_for('weapon') }}">Weapon</a></li>
-        <li><a href="{{ url_for('weapon') }}">Rifle</a></li>
-        <li class="active"><a href="#">Short Gun</a></li>
+        <li><a href="{{ url_for('rifle') }}">Rifle</a></li>
+        <li class="active"><a href="#">Shotgun</a></li>
         <li><a href="{{ url_for('machine_gun') }}">Machine Gun</a></li>
         <li><a href="{{ url_for('pistol') }}">Pistol</a></li>
       </ul>
@@ -43,7 +43,7 @@ Short Gun
 <div class="container">
     <div class="starter-template">
       <!-- title -->
-      <h1>Short Guns </h1>
+      <h1>Shotguns </h1>
       <p class="lead">Choose a weapon to explore its attributes</p>
       <!-- table -->
       <table class="table table-bordered">
@@ -66,7 +66,7 @@ Short Gun
       </table>
 
       <!-- dropdown list and explore button -->
-      <form action="/weapon/short_gun" method="POST">
+      <form action="/weapon/shotgun" method="POST">
         {{ form.hidden_tag() }}
         {{ wtf.form_field(form.weapon) }}
         <button class="btn btn-lg btn-primary btn-block" type="submit">Explore</button>

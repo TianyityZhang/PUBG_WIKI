@@ -62,12 +62,12 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=80)])
 
 class WeaponCatForm(FlaskForm):
-    category = SelectField('Weapon Catgory', choices=[('Rifle', 'Rifle'), ('Short Gun', 'Short Gun'), ('Machine Gun', 'Machine Gun'), ('Pistol', 'Pistol')])
+    category = SelectField('Weapon Catgory', choices=[('Rifle', 'Rifle'), ('Shotgun', 'Shotgun'), ('Machine Gun', 'Machine Gun'), ('Pistol', 'Pistol')])
 
 class RifleForm(FlaskForm):
     weapon = SelectField('Weapon Name', choices=[('M16A4', 'M16A4'), ('M416', 'M416'), ('Beryl M762', 'Beryl M762'), ('AKM', 'AK 47')])
 
-class ShortGunForm(FlaskForm):
+class ShotGunForm(FlaskForm):
     weapon = SelectField('Weapon Name', choices=[('SKS', 'SKS'), ('S12K', 'S12K'), ('S1897', 'S1897'), ('S686', 'S686')])
 
 class MachineGunForm(FlaskForm):
@@ -165,8 +165,8 @@ def weapon():
     if form.validate_on_submit():
         if form.category.data == 'Rifle':
             return redirect(url_for('rifle'))
-        if form.category.data == 'Short Gun':
-            return redirect(url_for('short_gun'))
+        if form.category.data == 'Shotgun':
+            return redirect(url_for('shotgun'))
         if form.category.data == 'Machine Gun':
             return redirect(url_for('machine_gun'))
         if form.category.data == 'Pistol':
@@ -183,13 +183,13 @@ def rifle():
     return render_template('rifle.html', form=form)
 
 
-# short gun
-@app.route('/weapon/short_gun', methods=['GET', 'POST'])
-def short_gun():
-    form = ShortGunForm()
+# shotgun
+@app.route('/weapon/shotgun', methods=['GET', 'POST'])
+def shotgun():
+    form = ShotGunForm()
     if form.validate_on_submit():
         return redirect(url_for('attribute', wid=form.weapon.data))
-    return render_template('short_gun.html', form=form)
+    return render_template('shotgun.html', form=form)
 
 
 # machine gun
