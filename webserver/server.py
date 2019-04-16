@@ -3,191 +3,317 @@
 """
 Columbia W4111 Intro to databases
 Example webserver
-
-To run locally
-
-    python server.py
-
+To run locally: $ python server.py
 Go to http://localhost:8111 in your browser
-
-
-A debugger such as "pdb" may be helpful for debugging.
-Read about it online.
 """
 
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, url_for, session, flash
+from flask_bootstrap import Bootstrap
+from flask_wtf import FlaskForm, Form
+from wtforms import StringField, PasswordField, BooleanField, SelectField
+from wtforms.validators import InputRequired, Email, Length
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from functools import wraps
+from sets import Set
+import re
 
-tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-app = Flask(__name__, template_folder=tmpl_dir)
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret'
+Bootstrap(app)
 
 
-
-# XXX: The Database URI should be in the format of: 
-#
-#     postgresql://USER:PASSWORD@<IP_OF_POSTGRE_SQL_SERVER>/<DB_NAME>
-#
-# For example, if you had username ewu2493, password foobar, then the following line would be:
-#
-#     DATABASEURI = "postgresql://ewu2493:foobar@<IP_OF_POSTGRE_SQL_SERVER>/postgres"
-#
-# For your convenience, we already set it to the class database
-
-# Use the DB credentials you received by e-mail
-DB_USER = "YOUR_DB_USERNAME_HERE"
-DB_PASSWORD = "YOUR_DB_PASSWORD_HERE"
-
+# connect to postgred databse
+# psql -h w4111.cisxo09blonu.us-east-1.rds.amazonaws.com -U yz3477 w4111
+DB_USER = "yz3477"
+DB_PASSWORD = "2lDOtYFj29"
 DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
-
 DATABASEURI = "postgresql://"+DB_USER+":"+DB_PASSWORD+"@"+DB_SERVER+"/w4111"
-
-
-#
-# This line creates a database engine that knows how to connect to the URI above
-#
 engine = create_engine(DATABASEURI)
 
-
-# Here we create a test table and insert some values in it
-engine.execute("""DROP TABLE IF EXISTS test;""")
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
-
-
+# check access to database at the beginning of web request
 @app.before_request
 def before_request():
-  """
-  This function is run at the beginning of every web request 
-  (every time you enter an address in the web browser).
-  We use it to setup a database connection that can be used throughout the request
+    try:
+        # variable g is globally accessible
+        g.conn = engine.connect()
+    except:
+        print "uh oh, problem connecting to database"
+        import traceback; traceback.print_exc()
+        g.conn = None
 
-  The variable g is globally accessible
-  """
-  try:
-    g.conn = engine.connect()
-  except:
-    print "uh oh, problem connecting to database"
-    import traceback; traceback.print_exc()
-    g.conn = None
-
+# close database connect at the end of web request
 @app.teardown_request
 def teardown_request(exception):
-  """
-  At the end of the web request, this makes sure to close the database connection.
-  If you don't the database could run out of memory!
-  """
-  try:
-    g.conn.close()
-  except Exception as e:
-    pass
+    try:
+        g.conn.close()
+    except Exception as e:
+        pass
+
+# login_manager = LoginManager()
+# login_manager.init_app(app)
+# login_manager.login_view = 'login'
+
+# define forms
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired(), Length(min=6, max=15)])
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=80)])
+    remember = BooleanField('Remember me')
+
+class RegisterForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired(), Length(min=6, max=15)])
+    email = StringField('Email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=80)])
+
+class WeaponCatForm(FlaskForm):
+    category = SelectField('Weapon Catgory', choices=[('Rifle', 'Rifle'), ('Short Gun', 'Short Gun'), ('Machine Gun', 'Machine Gun'), ('Pistol', 'Pistol')])
+
+class RifleForm(FlaskForm):
+    weapon = SelectField('Weapon Name', choices=[('M16A4', 'M16A4'), ('M416', 'M416'), ('Beryl M762', 'Beryl M762'), ('AKM', 'AK 47')])
+
+class ShortGunForm(FlaskForm):
+    weapon = SelectField('Weapon Name', choices=[('SKS', 'SKS'), ('S12K', 'S12K'), ('S1897', 'S1897'), ('S686', 'S686')])
+
+class MachineGunForm(FlaskForm):
+    weapon = SelectField('Weapon Name', choices=[('Micro UZI', 'Micro UZI'), ('Vector', 'KRISS Vector'), ('UMP9', 'UMP9'), ('Tommy Gun', 'Tommy Gun')])
+
+class PistolForm(FlaskForm):
+    weapon = SelectField('Weapon Name', choices=[('Skorpion', 'Skorpion'), ('P18C', 'P18C'), ('P92', 'P92'), ('P1911', 'P1911')])
+
+class HealingForm(FlaskForm):
+    item = SelectField('Item Name', choices=[('Bandage', 'Bandage'), ('First Aid Kit', 'First Aid Kit'), ('Med Kit', 'Med Kit')])
+    map_name = SelectField('Map', choices=[('Erangel', 'Erangel'), ('Miramar', 'Miramar'), ('Sanhok', 'Sanhok')])
+
+class BoostingForm(FlaskForm):
+    item = SelectField('Item Name', choices=[('Energy Drink', 'Energy Drink'), ('Painkiller', 'Painkiller'), ('Adrenaline Syringe', 'Adrenaline Syringe')])
+    map_name = SelectField('Map', choices=[('Erangel', 'Erangel'), ('Miramar', 'Miramar'), ('Sanhok', 'Sanhok')])
+
+class RatingForm(FlaskForm):
+    rating = SelectField('Rating', coerce=int, choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)])
+    map_name = SelectField('Map', choices=[('Erangel', 'Erangel'), ('Miramar', 'Miramar'), ('Sanhok', 'Sanhok')])
 
 
-#
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
-# If you wanted the user to go to e.g., localhost:8111/foobar/ with POST or GET then you could use
-#
-#       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-# 
-# see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
+
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'uid' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('You need to login first')
+            return redirect(url_for('login'))
+    return wrap
+
+
+# homepage
 @app.route('/')
 def index():
-  """
-  request is a special object that Flask provides to access web request information:
+    session['url'] = url_for('index')
+    return render_template('index.html')
 
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
-  # DEBUG: this is debugging code to see what request looks like
-  print request.args
-
-
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
-
-#
-# This is an example of a different path.  You can see it at
-# 
-#     localhost:8111/another
-#
-# notice that the functio name is another() rather than index()
-# the functions for each app.route needs to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("anotherfile.html")
-
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  print name
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-  g.conn.execute(text(cmd), name1 = name, name2 = name);
-  return redirect('/')
-
-
-@app.route('/login')
+# login
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    abort(401)
-    this_is_never_executed()
+    form = LoginForm()
+    if form.validate_on_submit():
+        uid = request.form['username']
+        cursor = g.conn.execute(text('SELECT * FROM USERS WHERE UID=:uid'), uid=uid)
+        record = cursor.fetchone()
+        cursor.close()
+        if record:
+            if record.password == request.form['password']:
+                session['uid'] = request.form['username']
+                if session['url']:
+                    return redirect(session['url'])
+                return redirect(url_for('index'))
+        context = dict(form=form, check=False)
+        return render_template('login.html', **context)
+    return render_template('login.html', form=form)
+
+
+# logout
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    session.clear()
+    flash('Successfully logout!')
+    return render_template('index.html')
+
+
+# signup
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        uid = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        cursor = g.conn.execute(text('SELECT UID FROM Users WHERE UID=:uid'), uid=uid)
+        record = cursor.fetchone()
+        cursor.close()
+        if record:
+            # return '<h1> User already exists. Please enter another one. </h1>'
+            context = dict(form=form, check=False)
+            return render_template('signup.html', **context)
+
+        cmd = 'INSERT INTO Users(UID, Email, Password) VALUES(:uid, :email, :password)'
+        cursor = g.conn.execute(text(cmd), uid=uid, email=email, password=password)
+        cursor.close()
+        return redirect(url_for('login'))
+        
+    return render_template('signup.html', form=form)
+
+# weapon category
+@app.route('/weapon', methods=['GET', 'POST'])
+def weapon():
+    form = WeaponCatForm()
+    session['url'] = url_for('weapon')
+    if form.validate_on_submit():
+        if form.category.data == 'Rifle':
+            return redirect(url_for('rifle'))
+        if form.category.data == 'Short Gun':
+            return redirect(url_for('short_gun'))
+        if form.category.data == 'Machine Gun':
+            return redirect(url_for('machine_gun'))
+        if form.category.data == 'Pistol':
+            return redirect(url_for('pistol'))
+    return render_template('weapon.html', form=form)
+
+
+# rifle
+@app.route('/weapon/rifle', methods=['GET', 'POST'])
+def rifle():
+    form = RifleForm()
+    if form.validate_on_submit():
+        return redirect(url_for('attribute', wid=form.weapon.data))
+    return render_template('rifle.html', form=form)
+
+
+# short gun
+@app.route('/weapon/short_gun', methods=['GET', 'POST'])
+def short_gun():
+    form = ShortGunForm()
+    if form.validate_on_submit():
+        return redirect(url_for('attribute', wid=form.weapon.data))
+    return render_template('short_gun.html', form=form)
+
+
+# machine gun
+@app.route('/weapon/machine_gun', methods=['GET', 'POST'])
+def machine_gun():
+    form = MachineGunForm()
+    if form.validate_on_submit():
+        return redirect(url_for('attribute', wid=form.weapon.data))
+    return render_template('machine_gun.html', form=form)
+
+# pistol
+@app.route('/weapon/pistol', methods=['GET', 'POST'])
+def pistol():
+    form = PistolForm()
+    if form.validate_on_submit():
+        return redirect(url_for('attribute', wid=form.weapon.data))
+    return render_template('pistol.html', form=form)
+
+
+
+# weapon attribute and attachment
+@app.route('/weapon/attribute/<wid>', methods=['GET', 'POST'])
+def attribute(wid):
+    form = RatingForm()
+    # weapon attributes
+    cmd = 'SELECT AmmoType, HitDamage, ZeroingRangeLB, ZeroingRangeUB FROM Weapon WHERE WID=:wid'
+    cursor = g.conn.execute(text(cmd), wid=wid)
+    attribute = cursor.fetchone()
+    cursor.close()
+    # average rating
+    cmd = 'SELECT ROUND(SUM(Rating)/COUNT(*), 1) Average_Rating FROM (SELECT Rating FROM Weapon_Rating WHERE WID =:wid) T;'
+    cursor = g.conn.execute(text(cmd), wid=wid)
+    average_rating = cursor.fetchone().average_rating
+    cursor.close()
+    # attachable attachments
+    cmd = 'SELECT T1.AttID, T2.SubCategory FROM Weapon_Attch_Match T1 JOIN Attachment T2 ON T1.AttID = T2.AttID WHERE WID =:wid'
+    cursor = g.conn.execute(text(cmd), wid=wid)
+    scope = Set()
+    magzine = Set()
+    muzzle = Set()
+    grip = Set()
+    for record in cursor:
+        if record.subcategory == 'Scope':
+            scope.add(record.attid)
+        if record.subcategory == 'Magazine':
+            magzine.add(record.attid)
+        if record.subcategory == 'Muzzle':
+            muzzle.add(record.attid)
+        if record.subcategory == 'Grip':
+            grip.add(record.attid)
+    cursor.close()
+    # submit redirection
+    if form.validate_on_submit():
+        # submit rating
+        if 'rate' in request.form:
+            return redirect(url_for('rating', wid=wid, rating=form.rating.data))
+        # explore location
+        if 'map' in request.form:
+            return redirect(url_for('location', item=wid, map=form.map_name.data))
+
+    context = dict(form=form, wid=wid, attribute=attribute, average_rating=average_rating, scope=scope, magzine=magzine, muzzle=muzzle, grip=grip)
+    return render_template('attribute.html', **context)
+
+
+
+@app.route('/weapon/rating/<wid>&<rating>', methods=['GET', 'POST'])
+@login_required
+def rating(wid, rating):
+    uid = session['uid']
+
+    cmd = 'SELECT Rating FROM Weapon_Rating WHERE UID=:uid AND WID=:wid'
+    cursor = g.conn.execute(text(cmd), uid=uid, wid=wid)
+    record = cursor.fetchone()
+    cursor.close()
+    if record:
+        old_rating = record.rating
+        cmd = 'UPDATE Weapon_Rating SET Rating =:rating WHERE UID=:uid AND WID=:wid'
+        cursor = g.conn.execute(text(cmd), uid=uid, wid=wid, rating=rating)
+        cursor.close()
+        return render_template('rating.html', uid=uid, wid=wid, rating=rating, old_rating=old_rating)
+
+    cmd = 'INSERT INTO Weapon_Rating (UID, WID, Rating) VALUES (:uid, :wid, :rating)'
+    cursor = g.conn.execute(text(cmd), uid=uid, wid=wid, rating=int(rating))
+    cursor.close()
+
+    return render_template('rating.html', uid=uid, wid=wid, rating=rating, old_rating=None)
+
+
+
+# healing
+@app.route('/healing', methods=['GET', 'POST'])
+def healing():
+    form = HealingForm()
+    session['url'] = url_for('healing')
+    if form.validate_on_submit():
+        return redirect(url_for('location', item=form.item.data, map=form.map_name.data))
+    return render_template('healing.html', form=form)
+
+# boosting
+@app.route('/boosting', methods=['GET', 'POST'])
+def boosting():
+    form = BoostingForm() 
+    session['url'] = url_for('boosting')
+    if form.validate_on_submit():
+        return redirect(url_for('location', item=form.item.data, map=form.map_name.data))
+    return render_template('boosting.html', form=form)
+
+ 
+# location
+@app.route('/location/<item>/<map>')
+def location(item, map):
+    context = dict(item=item, map=map)
+    return render_template("location.html", **context)
+
+
 
 
 if __name__ == "__main__":
@@ -208,9 +334,7 @@ if __name__ == "__main__":
     Show the help text using
 
         python server.py --help
-
     """
-
     HOST, PORT = host, port
     print "running on %s:%d" % (HOST, PORT)
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)

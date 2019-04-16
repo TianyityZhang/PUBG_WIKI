@@ -1,6 +1,8 @@
 {% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
 {% block title %}
-Demo PUBG App
+Ratings
 {% endblock %}
 
 {% block styles %}
@@ -18,31 +20,30 @@ Demo PUBG App
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="#">PUBG</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
             <li><a href="{{ url_for('weapon') }}">Weapon</a></li>
             <li><a href="{{ url_for('healing') }}">Healing</a></li>
             <li><a href="{{ url_for('boosting') }}">Boosting</a></li>
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-            <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
           </ul>
         </div>
       </div>
     </nav>
 
-    
     <div class="container">
       <div class="starter-template">
-        <img src="https://d1nglqw9e0mrau.cloudfront.net/assets/images/pubg_logo@2x-61e1ec01.png" alt="PUBG">
-        <h1>FANTASTIC ITEMS</h1>
-        <h1>and WHERE TO FIND THEM</h1>
+        <!-- title -->
+        <h1>Thank you {{ uid }}.</h1>
+        {% if old_rating %}
+        <h1>Your rating has been updated from {{ old_rating }} to {{ rating }} for {{ wid }}. </h1>
+        {% else %}
+        <h1>Your rating of {{ rating }} for {{ wid }} has been submitted. </h1>
+        {% endif %}
       </div>
-
-    </div><!-- /.container -->
+    </div>
 {% endblock %}

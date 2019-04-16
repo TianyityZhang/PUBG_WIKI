@@ -1,0 +1,252 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}
+Item Location on Map
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='starter-template.css')}}">
+
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+        aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">PUBG</a>
+    </div>
+    <div id="navbar" class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('weapon') }}">Weapon</a></li>
+        <li><a href="{{ url_for('healing') }}">Healing</a></li>
+        <li><a href="{{ url_for('boosting') }}">Boosting</a></li>
+        <li class="active"><a href="#">Location</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="starter-template">
+    <h1>{{ item }} Locations on {{ map }} Map</h1>
+    {% if map == 'Erangel' %}
+      {% if item == 'Bandage' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721010.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'First Aid Kit' %}
+      <img style="max-width:60%" style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721011.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Med Kit' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721012.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Adrenaline Syringe' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721252.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Energy Drink' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721253.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Painkiller' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721254.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Vector' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722839.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'UMP9' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722836.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Tommy Gun' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722835.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'SKS' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722831.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Skorpion' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722830.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'S1897' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722829.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'S686' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722826.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'S12K' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722824.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'P1911' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722823.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'P92' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722821.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'P18C' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722820.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Micro UZI' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722819.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'M416' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722817.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'M16A4' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722815.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'Beryl M762' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722812.webp" alt="Erangel">
+      {% endif %}
+      {% if item == 'AKM' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553722806.webp" alt="Erangel">
+      {% endif %}
+    {% endif %}
+    
+    {% if map == 'Miramar' %}
+      {% if item == 'Bandage' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721013.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'First Aid Kit' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721014.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Med Kit' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721015.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Adrenaline Syringe' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721256.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Energy Drink' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721257.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Painkiller' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721260.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Vector' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723616.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'UMP9' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723612.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Tommy Gun' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723610.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'SKS' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723609.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Skorpion' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723608.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'S1897' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723607.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'S686' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723606.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'S12K' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723605.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'P1911' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723604.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'P92' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723602.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'P18C' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723601.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Micro UZI' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723600.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'M416' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723598.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'M16A4' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723597.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'Beryl M762' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723593.webp" alt="Miramar">
+      {% endif %}
+      {% if item == 'AKM' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723591.webp" alt="Miramar">
+      {% endif %}
+    {% endif %}
+    
+    {% if map == 'Sanhok' %}
+      {% if item == 'Bandage' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721016.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'First Aid Kit' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721017.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Med Kit' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721018.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Adrenaline Syringe' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721261.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Energy Drink' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721263.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Painkiller' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553721265.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Vector' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723803.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'UMP9' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723802.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Tommy Gun' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723801.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'SKS' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723800.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Skorpion' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723799.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'S1897' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723798.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'S686' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723797.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'S12K' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723795.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'P1911' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553724196.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'P92' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723792.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'P18C' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723791.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Micro UZI' %}
+      <img style="max-width:60%" src= "https://img3.doubanio.com/view/photo/l/public/p2553723790.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'M416' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723789.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'M16A4' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723788.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'Beryl M762' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723786.webp" alt="Sanhok">
+      {% endif %}
+      {% if item == 'AKM' %}
+      <img style="max-width:60%" src= "https://img1.doubanio.com/view/photo/l/public/p2553723785.webp" alt="Sanhok">
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
