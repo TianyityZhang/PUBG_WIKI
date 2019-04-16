@@ -15,8 +15,6 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm, Form
 from wtforms import StringField, PasswordField, BooleanField, SelectField
 from wtforms.validators import InputRequired, Email, Length
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from functools import wraps
 from sets import Set
 import re
@@ -24,7 +22,6 @@ import re
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 Bootstrap(app)
-
 
 # connect to postgred databse
 # psql -h w4111.cisxo09blonu.us-east-1.rds.amazonaws.com -U yz3477 w4111
@@ -52,10 +49,6 @@ def teardown_request(exception):
         g.conn.close()
     except Exception as e:
         pass
-
-# login_manager = LoginManager()
-# login_manager.init_app(app)
-# login_manager.login_view = 'login'
 
 # define forms
 class LoginForm(FlaskForm):
@@ -95,8 +88,7 @@ class RatingForm(FlaskForm):
     rating = SelectField('Rating', coerce=int, choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)])
     map_name = SelectField('Map', choices=[('Erangel', 'Erangel'), ('Miramar', 'Miramar'), ('Sanhok', 'Sanhok')])
 
-
-
+# login required
 def login_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -106,7 +98,6 @@ def login_required(f):
             flash('You need to login first')
             return redirect(url_for('login'))
     return wrap
-
 
 # homepage
 @app.route('/')
@@ -155,7 +146,6 @@ def signup():
         record = cursor.fetchone()
         cursor.close()
         if record:
-            # return '<h1> User already exists. Please enter another one. </h1>'
             context = dict(form=form, check=False)
             return render_template('signup.html', **context)
 
@@ -163,8 +153,9 @@ def signup():
         cursor = g.conn.execute(text(cmd), uid=uid, email=email, password=password)
         cursor.close()
         return redirect(url_for('login'))
-        
+
     return render_template('signup.html', form=form)
+
 
 # weapon category
 @app.route('/weapon', methods=['GET', 'POST'])
@@ -263,7 +254,7 @@ def attribute(wid):
     return render_template('attribute.html', **context)
 
 
-
+# submit rating for weapon
 @app.route('/weapon/rating/<wid>&<rating>', methods=['GET', 'POST'])
 @login_required
 def rating(wid, rating):
@@ -285,7 +276,6 @@ def rating(wid, rating):
     cursor.close()
 
     return render_template('rating.html', uid=uid, wid=wid, rating=rating, old_rating=None)
-
 
 
 # healing
